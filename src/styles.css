@@ -120,6 +120,32 @@ footer { margin-top: 15px; text-align: center; color: #a197b0; font-size: .78rem
 .wardrobe-items > h1 { color: var(--purple-dark); font-size: 2.1rem; margin-bottom: 4px; }.wardrobe-items > p { color: var(--muted); }.wardrobe-category { margin: 17px 0; }.wardrobe-category h2 { margin: 0 0 8px; color: #6c4a8a; font-family: 'Baloo 2'; font-size: 1.25rem; }.wardrobe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
 .wardrobe-item { min-height: 111px; padding: 9px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 2px solid #e8def0; border-radius: 16px; background: #fff; color: #684a80; font-size: .74rem; font-weight: 900; cursor: pointer; }.wardrobe-item.selected { border-color: #b685da; background: #f7eeff; box-shadow: 0 0 0 3px #eddcf9; }.wardrobe-item:disabled { cursor: not-allowed; }.wardrobe-item.locked { background: #f3f0f3; opacity: .6; }.wardrobe-item small { color: #9a81aa; font-size: .66rem; }.item-emoji { font-size: 1.7rem; }
 
+.treasure-results { max-width: 800px; margin: 24px auto; text-align: center; }
+.treasure-results h1 { font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; color: var(--purple-dark); font-size: clamp(1.7rem, 4vw, 2.5rem); margin-bottom: 12px; }
+.treasure-results h2 { color: var(--purple-dark); margin: 28px 0 10px; }
+.treasure-results .eyebrow { color: #795799; }
+.treasure-celebration { font-size: 2.6rem; margin-bottom: 12px; animation: pop .5s ease-out; }
+.round-date { font-size: .85rem; color: #776587; }
+.treasure-record { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid #edcd7e; border-radius: 22px; background: linear-gradient(120deg, #fff8df, #ffedf5); text-align: left; }
+.treasure-record > span { font-size: 2.2rem; }
+.treasure-record strong { color: #644280; }
+.treasure-record p { margin: 4px 0 0; color: #6a547b; font-size: .9rem; }
+.home-treasure { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.home-treasure .treasure-record { flex: 1; }
+.treasure-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin: 20px 0; }
+.treasure-actions button, .treasure-timer .pause-button { min-height: 56px; }
+.treasure-answer-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 12px; text-align: left; }
+.treasure-answer-list li { padding: 16px 20px; border-radius: 20px; border: 2px solid #cde7d7; background: #f0fff4; }
+.treasure-answer-list .treasure-answer-practice { border-color: #e4d3ef; background: #faf3ff; }
+.treasure-answer-heading { display: flex; justify-content: space-between; gap: 12px; font-weight: 900; color: #4a6658; }
+.treasure-answer-practice .treasure-answer-heading { color: #795493; }
+.treasure-answer-heading small { font-weight: 700; }
+.treasure-equation { font-size: 1.6rem; font-weight: 900; margin: 12px 0 0; }
+.treasure-equation mark { display: inline-block; padding: 2px 8px; border-radius: 8px; color: #51356b; background: #fff; border: 2px solid #cbb4db; }
+.treasure-solution { margin: 10px 0 0; color: #67487f; font-weight: 800; }
+.treasure-empty { padding: 24px; border-radius: 20px; background: #fff8e4; }
+.treasure-instruction { max-width: 640px; margin: 12px auto 0; color: #766184; font-size: .85rem; }
+
 @media (max-width: 760px) {
   .app-shell { padding: 12px 16px 20px; }.brand-mini { font-size: .95rem; }.home-hero { padding: 26px 23px; min-height: 275px; }.hero-copy h1 { font-size: 2rem; }.hero-copy > p:not(.eyebrow) { max-width: 300px; font-size: .9rem; }.hero-castle { flex-basis: 210px; height: 215px; margin-right: -23px; }.castle { font-size: 8rem; right: -14px; bottom: -20px; }.hero-princess { left: 0; bottom: 1px; height: 155px; }.princess-small { width: 118px; height: 153px; }.rainbow { right: 95px; font-size: 2.4rem; }.moon { right: 7px; }.mode-grid { grid-template-columns: repeat(2, 1fr); }.mode-card { min-height: 86px; padding: 10px; gap: 8px; }.mode-icon { width: 46px; height: 46px; flex-basis: 46px; font-size: 1.5rem; }.mode-text strong { font-size: 1rem; }.mode-text small { font-size: .7rem; }.home-bottom { grid-template-columns: 1fr; }.progress-card div:nth-child(2) { min-width: 120px; }.wardrobe-layout { grid-template-columns: 1fr; }.princess-stage { position: relative; top: 0; min-height: 335px; }.princess-stage .princess { width: 185px; height: 235px; }.wardrobe-items { max-width: 600px; margin: auto; width: 100%; }
 }

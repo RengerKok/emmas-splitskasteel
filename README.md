@@ -21,7 +21,7 @@ npm run build
 npm run preview
 ```
 
-Vitest controleert de rekengenerator, antwoordopties, niveaus, XP-beloningen en herstel van ongeldige voortgangsbestanden. De build staat in `dist`.
+Vitest controleert de rekengenerator, antwoordopties, niveaus, XP-beloningen, de twee-minutenklok met pauze/hervatten, de antwoordweergave, highscores met datum en herstel van voortgangsbestanden. De build staat in `dist`.
 
 ## Publiceren via GitHub Pages
 
@@ -47,7 +47,16 @@ Na publicatie van een update: open de app met internet aan, wacht even en sluit 
 
 ## Spelen en voortgang
 
-Kies een kamer op het kasteelplein. In de Rekentoren en Prinsessenmissie gebruikt Emma het grote toetsenbord; de Toverkamer geeft meerkeuzevragen; in de Magische Tuin verdeelt ze voorwerpen; de Schatkamer is optioneel en heeft pauze en drie tijdsduren. Hints, niveaukeuze, geluid en ouderinstellingen zijn beschikbaar. XP en kleding worden lokaal bewaard. De ouderhoek kan voortgang exporteren naar JSON en later weer importeren. Bewaar het JSON-bestand op een vertrouwde plek; het bevat geen achternaam, geboortedatum of andere profielgegevens.
+Kies een kamer op het kasteelplein. In de Rekentoren en Prinsessenmissie gebruikt Emma het grote toetsenbord; de Toverkamer geeft meerkeuzevragen; in de Magische Tuin verdeelt ze voorwerpen. Hints, niveaukeuze, geluid en ouderinstellingen zijn beschikbaar. XP en kleding worden lokaal bewaard. De ouderhoek kan voortgang exporteren naar JSON en later weer importeren. Bewaar het JSON-bestand op een vertrouwde plek; het bevat geen achternaam, geboortedatum of andere profielgegevens.
+
+### Schatkamer: twee minuten rekenmagie
+
+- Een ronde duurt altijd **120 seconden**, ook wanneer eerder 30 of 60 seconden was ingesteld. Pauze bevriest de resterende tijd; na hervatten loopt de klok verder. Zonder pauze loopt de tijd ook door als de app op de achtergrond staat.
+- Elk bevestigd antwoord, goed of fout, wordt eenmaal geregistreerd. De volgende som verschijnt direct, zonder knop 'Volgende som'. Lege invoer wordt niet bevestigd. Na afloop telt een niet-beantwoorde som niet mee.
+- Na afloop toont het **schattenboek** het aantal goede en foute antwoorden, de verdiende XP en alle ingevulde antwoorden. Bij fouten staat de juiste splitsing erbij. Fouten kosten geen XP; de bestaande XP-regels (10 zonder hint, 6 met hint, geen extra XP voor eerder beloonden opgaven) blijven gelden.
+- Het **koninklijke record** is het hoogste aantal goede antwoorden in een voltooide ronde, met lokale datum en tijd. Ook herhaalde sommen tellen als goed voor deze rondescore, onafhankelijk van XP. Bij een gelijke score blijft de oorspronkelijke recorddatum staan. Het record is niet per niveau gescheiden.
+- Het record en het laatste volledige schattenboek blijven lokaal bewaard, zijn vanaf het kasteel en de ouderhoek te bekijken en gaan mee in JSON-export/import. Oudere voortgangsbestanden blijven bruikbaar; die hebben nog geen record.
+- Een ronde verlaten of de app herladen breekt die ronde af: er komt geen nieuw record of schattenboek, maar al verdiende XP en geregistreerde pogingen blijven bewaard. Een nieuwe ronde begint weer op 2 minuten. 'Begin opnieuw' in de ouderhoek wist ook het record en het schattenboek.
 
 ## Uitbreiden
 

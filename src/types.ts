@@ -19,6 +19,22 @@ export interface OutfitItem {
   cost: number;
 }
 
+export interface TreasureAttempt {
+  problem: Problem;
+  given: number;
+  xp: number;
+}
+
+export interface TreasureRound {
+  completedAt: string;
+  attempts: TreasureAttempt[];
+}
+
+export interface TreasureHighscore {
+  correct: number;
+  achievedAt: string;
+}
+
 export interface Progress {
   version: 1;
   name: string;
@@ -36,5 +52,7 @@ export interface Progress {
   sound: boolean;
   timerEnabled: boolean;
   maxSeconds: number;
+  treasureHighscore: TreasureHighscore | null;
+  lastTreasureRound: TreasureRound | null;
   lastRewardId?: string;
 }

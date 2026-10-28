@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
-import { addXp, createProblem, defaultProgress, getLevel, loadProgress, makeChoices, nextJoke, OUTFITS, problemKey, PRAISE, STORAGE_KEY } from './game';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { addXp, createProblem, defaultProgress, getLevel, loadProgress, makeChoices, nextJoke, OUTFITS, problemKey, PRAISE, recordAnswer, STORAGE_KEY } from './game';
 import Princess from './Princess';
-import type { Level, Mode, OutfitCategory, Problem, Progress } from './types';
+import TreasureResults, { TreasureRecord } from './TreasureResults';
+import { pauseTreasureClock, remainingTime, resumeTreasureClock, saveTreasureRound, startTreasureClock, TREASURE_SECONDS } from './treasure';
+import type { Level, Mode, OutfitCategory, Problem, Progress, TreasureAttempt, TreasureRound } from './types';
 
-type Screen = 'home' | 'play' | 'wardrobe' | 'parent';
+type Screen = 'home' | 'play' | 'wardrobe' | 'parent' | 'treasure-results';
 const MODES: { id: Mode; title: string; subtitle: string; icon: string; color: string }[] = [
   { id: 'tower', title: 'Rekentoren', subtitle: 'Vul de splitsing in', icon: '🏰', color: 'lilac' },
   { id: 'magic', title: 'Toverkamer', subtitle: 'Kies het juiste antwoord', icon: '🪄', color: 'blue' },
   { id: 'garden', title: 'Magische tuin', subtitle: 'Verdeel de sterren', icon: '🌷', color: 'green' },
   { id: 'mission', title: 'Prinsessenmissie', subtitle: 'Help prinses Lila op avontuur', icon: '🦄', color: 'pink' },
-  { id: 'treasure', title: 'Schatkamer', subtitle: 'Speel tegen de klok', icon: '💎', color: 'gold' },
+  { id: 'treasure', title: 'Schatkamer', subtitle: 'Een schattenjacht van 2 minuten', icon: '💎', color: 'gold' },
 ];
 const MISSIONS = [
   { title: 'Prinses Lila en het koninklijke bal', task: 'Help Lila haar kroon te vinden voor het bal.', ending: 'Prinses Lila heeft haar kroon gevonden en straalt op het bal!' },
@@ -52,7 +54,12 @@ function App() {
   const [feedback, setFeedback] = useState('');
   const [isCorrect, setIsCorrect] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(60);
+  const [secondsLeft, setSecondsLeft] = useState(TREASURE_SECONDS);
+  const treasureClock = useRef(startTreasureClock(0));
+  const treasureAttempts = useRef<TreasureAttempt[]>([]);
+  const lastSubmittedProblem = useRef<Problem | null>(null);
+  const [treasureCount, setTreasureCount] = useState(0);
+  const [treasureResult, setTreasureResult] = useState<TreasureRound | null>(null);
   const [missionStep, setMissionStep] = useState(0);
   const [missionStory, setMissionStory] = useState(MISSIONS[0]);
   const [gameOver, setGameOver] = useState(false);
@@ -77,20 +84,26 @@ function App() {
     }
   }, [progress]);
 
+  const finishTreasure = useCallback((now: number) => {
+    if (treasureClock.current.finished) return;
+    treasureClock.current = { remainingMs: 0, deadline: null, finished: true };
+    const round: TreasureRound = { completedAt: new Date(now).toISOString(), attempts: [...treasureAttempts.current] };
+    setSecondsLeft(0);
+    setGameOver(true);
+    setTreasureResult(round);
+    setProgress((current) => saveTreasureRound(current, round));
+  }, []);
+
   useEffect(() => {
     if (screen !== 'play' || mode !== 'treasure' || paused || gameOver) return undefined;
     const timer = window.setInterval(() => {
-      setSecondsLeft((seconds) => {
-        if (seconds <= 1) {
-          setGameOver(true);
-          setFeedback('De schatkist is dicht, maar jij hebt prachtige sterren verzameld!');
-          return 0;
-        }
-        return seconds - 1;
-      });
-    }, 1000);
+      const now = Date.now();
+      const remaining = remainingTime(treasureClock.current, now);
+      setSecondsLeft(Math.ceil(remaining / 1000));
+      if (remaining === 0) finishTreasure(now);
+    }, 200);
     return () => window.clearInterval(timer);
-  }, [screen, mode, paused, gameOver]);
+  }, [screen, mode, paused, gameOver, finishTreasure]);
 
   const accuracy = progress.solved ? Math.round((progress.correct / progress.solved) * 100) : 0;
   const availableReward = useMemo(() => OUTFITS.find((item) => item.id === progress.lastRewardId), [progress.lastRewardId]);
@@ -106,14 +119,23 @@ function App() {
     setGameOver(false);
     setMissionStep(0);
     setMissionStory(MISSIONS[Math.floor(Math.random() * MISSIONS.length)]);
-    setSecondsLeft(progress.maxSeconds);
+    setSecondsLeft(TREASURE_SECONDS);
+    treasureClock.current = startTreasureClock(Date.now());
+    treasureAttempts.current = [];
+    lastSubmittedProblem.current = null;
+    setTreasureCount(0);
+    setTreasureResult(null);
     setFeedback('');
     setIsCorrect(false);
     newProblem(nextMode);
   }
 
-  function newProblem(nextMode = mode) {
-    const next = makeProgressProblem(progress, nextMode === 'garden' || getLevel(progress) === 1);
+  function newProblem(nextMode = mode, currentProgress = progress) {
+    const next = makeProgressProblem(currentProgress, nextMode === 'garden' || getLevel(currentProgress) === 1);
+    if (nextMode === 'treasure' && problemKey(next) === problemKey(problem)) {
+      next.known = (next.known + 1) % (next.total + 1);
+      next.answer = next.total - next.known;
+    }
     setProblem(next);
     setChoices(makeChoices(next));
     setEntry('');
@@ -124,32 +146,24 @@ function App() {
   }
 
   function submit(answer: number) {
-    if (isCorrect || gameOver) return;
-    setSaved((current) => {
-      const key = problemKey(problem);
-      const isRight = answer === problem.answer;
-      if (!isRight) {
-        const wrongCount = (current.wrongByTotal[String(problem.total)] ?? 0) + 1;
-        return {
-          ...current,
-          solved: current.solved + 1,
-          tricky: current.tricky.includes(problem.total) ? current.tricky : [...current.tricky, problem.total],
-          wrongByTotal: { ...current.wrongByTotal, [String(problem.total)]: wrongCount },
-        };
+    if (isCorrect || gameOver || paused) return;
+    if (mode === 'treasure') {
+      const now = Date.now();
+      if (remainingTime(treasureClock.current, now) === 0) {
+        finishTreasure(now);
+        return;
       }
-      const firstTry = hints === 0;
-      const gain = current.rewardedProblems.includes(key) ? 0 : firstTry ? 10 : 6;
-      let updated: Progress = {
-        ...current,
-        solved: current.solved + 1,
-        correct: current.correct + 1,
-        rewardedProblems: gain ? [...current.rewardedProblems, key] : current.rewardedProblems,
-        recentProblems: [...current.recentProblems, key].slice(-20),
-        tricky: current.tricky.filter((total) => total !== problem.total || current.wrongByTotal[String(total)]),
-      };
-      if (gain) updated = addXp(updated, gain);
-      return updated;
-    });
+      if (lastSubmittedProblem.current === problem) return;
+      lastSubmittedProblem.current = problem;
+      const result = recordAnswer(progress, problem, answer, hints);
+      treasureAttempts.current.push({ problem: { ...problem }, given: answer, xp: result.xp });
+      setTreasureCount(treasureAttempts.current.length);
+      setProgress(result.progress);
+      if (result.correct && progress.sound) playChime();
+      newProblem(mode, result.progress);
+      return;
+    }
+    setSaved((current) => recordAnswer(current, problem, answer, hints).progress);
     if (answer !== problem.answer) {
       setFeedback(hints === 0 ? 'Bijna! Kijk nog eens goed en probeer het opnieuw. 💖' : 'Je bent dichtbij! Tel rustig verder. ✨');
       setIsCorrect(false);
@@ -166,6 +180,19 @@ function App() {
       setLastJoke(next);
       setJoke(next);
     }
+  }
+
+  function toggleTreasurePause() {
+    const now = Date.now();
+    if (remainingTime(treasureClock.current, now) === 0) {
+      finishTreasure(now);
+      return;
+    }
+    treasureClock.current = paused
+      ? resumeTreasureClock(treasureClock.current, now)
+      : pauseTreasureClock(treasureClock.current, now);
+    setSecondsLeft(Math.ceil(remainingTime(treasureClock.current, now) / 1000));
+    setPaused((value) => !value);
   }
 
   function playChime() {
@@ -271,10 +298,12 @@ function App() {
           <label>Moeilijkheid<select value={progress.selectedLevel} onChange={(event) => setSaved((old) => ({ ...old, selectedLevel: event.target.value === 'auto' ? 'auto' : Number(event.target.value) as Level }))}>
             <option value="auto">Automatisch aanpassen</option><option value="1">Beginnende prinses (tot 10)</option><option value="2">Slimme prinses (tot 15)</option><option value="3">Rekenkoningin (tot 20)</option>
           </select></label>
-          <label>Oefentijd schatkamer<select value={progress.maxSeconds} onChange={(event) => setSaved((old) => ({ ...old, maxSeconds: Number(event.target.value) }))}><option value="30">30 seconden</option><option value="60">60 seconden</option><option value="120">120 seconden</option></select></label>
+          <p>💎 De Schatkamer duurt altijd 2 minuten. Elk bevestigd antwoord gaat direct door naar de volgende som. Het record telt het aantal goede antwoorden.</p>
           <label className="check-label"><input type="checkbox" checked={progress.sound} onChange={(event) => setSaved((old) => ({ ...old, sound: event.target.checked }))} /> Geluid aan</label>
           <label className="check-label"><input type="checkbox" checked={progress.timerEnabled} onChange={(event) => setSaved((old) => ({ ...old, timerEnabled: event.target.checked }))} /> Schatkamer beschikbaar</label>
         </div>
+        <TreasureRecord highscore={progress.treasureHighscore} />
+        {progress.lastTreasureRound && <button className="secondary-button" onClick={() => setScreen('treasure-results')}>📖 Bekijk het laatste schattenboek</button>}
         <div className="settings-card">
           <h2>Voortgang meenemen</h2><p>Bewaar een kopie om je voortgang later terug te zetten.</p>
           <div className="button-row"><button className="secondary-button" onClick={exportProgress}>⬇️ Exporteer JSON</button><label className="secondary-button file-button">⬆️ Importeer JSON<input type="file" accept="application/json,.json" onChange={(event) => void importProgress(event.target.files?.[0])} /></label></div>
@@ -311,14 +340,24 @@ function App() {
     </main>;
   }
 
+  const displayedRound = screen === 'treasure-results' ? progress.lastTreasureRound : treasureResult;
+  if ((screen === 'treasure-results' || (screen === 'play' && mode === 'treasure' && gameOver)) && displayedRound) {
+    return <main className="app-shell">
+      <header className="topbar"><button className="back-button" onClick={() => setScreen('home')}>← Kasteel</button><div className="brand-mini">💎 Schatkamer</div><div className="xp-pill">✨ {progress.xp} XP</div></header>
+      {errorText && <p className="storage-warning" role="alert">{errorText}</p>}
+      <TreasureResults round={displayedRound} highscore={progress.treasureHighscore} name={progress.name}
+        onReplay={() => begin('treasure')} onHome={() => setScreen('home')} />
+    </main>;
+  }
+
   if (screen === 'play') {
     const timeLabel = `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}`;
     return <main className="app-shell play-shell">
       <header className="topbar"><button className="back-button" onClick={() => setScreen('home')}>← Kasteel</button><div className="brand-mini">{MODES.find((item) => item.id === mode)?.icon} {MODES.find((item) => item.id === mode)?.title}</div><div className="xp-pill">✨ {progress.xp} XP</div></header>
       <section className="play-content">
         {mode === 'mission' && <div className="mission-progress"><span>{missionStory.title}</span><strong>Opdracht {Math.min(missionStep + 1, 5)} van 5</strong><p>{missionStory.task}</p><div><i style={{ width: `${(missionStep / 5) * 100}%` }} /></div></div>}
-        {mode === 'treasure' && <div className="timer-row"><span>💎 Verzamel zoveel mogelijk sterren!</span><strong>{gameOver ? 'Klaar!' : timeLabel}</strong><button className="pause-button" onClick={() => setPaused((value) => !value)} disabled={gameOver}>{paused ? '▶ Verder' : 'Ⅱ Pauze'}</button></div>}
-        {paused ? <div className="pause-card"><span>⏸️</span><h1>Even pauze</h1><p>De tijd staat stil. Rustig aan, Emma!</p><button className="primary-button" onClick={() => setPaused(false)}>Verder spelen</button></div> :
+        {mode === 'treasure' && <div className="timer-row treasure-timer"><span>💎 {treasureCount} {treasureCount === 1 ? 'antwoord' : 'antwoorden'} bewaard</span><strong role="timer" aria-label="Resterende tijd">{timeLabel}</strong><button className="pause-button" onClick={toggleTreasurePause}>{paused ? '▶ Verder' : 'Ⅱ Pauze'}</button></div>}
+        {paused ? <div className="pause-card"><span>⏸️</span><h1>Even pauze</h1><p>De tijd staat stil. Rustig aan, {progress.name}!</p><button className="primary-button" onClick={toggleTreasurePause}>Verder spelen</button></div> :
           <>{!gameOver && <div className="play-workspace">
             {renderProblem()}
             <div className="play-answer">
@@ -335,6 +374,8 @@ function App() {
             {mode === 'garden' && problem.visual && <div className="garden-dots" aria-label="Tik op voorwerpen om ze te verdelen">{Array.from({ length: problem.total }, (_, index) => <button key={index} className={index < basket ? 'in-basket' : ''} aria-label={`Verplaats voorwerp ${index + 1} ${index < basket ? 'terug' : 'naar links'}`} onClick={() => setBasket((count) => index < count ? index : index + 1)} disabled={isCorrect}>{VISUALS[(problem.total + index) % VISUALS.length]}</button>)}</div>}
             {isCorrect && (progress.correct + 1) % 5 === 0 && <div className="joke-card">😄 {joke}</div>}
           </>}
+        {mode === 'treasure' && <p className="treasure-instruction">Na Controleer komt meteen de volgende som. Je antwoorden bekijk je straks in je schattenboek.</p>}
+        {errorText && <p className="storage-warning" role="alert">{errorText}</p>}
       </section>
     </main>;
   }
@@ -348,6 +389,10 @@ function App() {
     <section className="mode-section"><div className="section-heading"><div><p className="eyebrow">KIES JE AVONTUUR</p><h2>Waar gaan we heen?</h2></div><div className="level-chip">🌱 {progress.selectedLevel === 'auto' ? 'Niveau ' + getLevel(progress) : `Niveau ${progress.selectedLevel}`}</div></div>
       <div className="mode-grid">{MODES.filter((item) => item.id !== 'treasure' || progress.timerEnabled).map((item) => <button key={item.id} className={`mode-card ${item.color}`} onClick={() => begin(item.id)}><span className="mode-icon">{item.icon}</span><span className="mode-text"><strong>{item.title}</strong><small>{item.subtitle}</small></span><span className="mode-arrow">→</span></button>)}</div>
     </section>
+    {progress.timerEnabled && <section className="home-treasure">
+      <TreasureRecord highscore={progress.treasureHighscore} />
+      {progress.lastTreasureRound && <button className="secondary-button" onClick={() => setScreen('treasure-results')}>📖 Mijn schattenboek</button>}
+    </section>}
     <section className="home-bottom"><div className="progress-card"><span>🌟</span><div><strong>Jouw sterrenreis</strong><small>{progress.correct} sommen goed · {progress.unlocked.length} beloningen</small></div><div className="progress-track"><i style={{ width: `${Math.min(100, (progress.xp % 100))}%` }} /></div></div><div className="joke-home"><span>😄</span><p>{joke}</p><button aria-label="Nieuw grapje" onClick={() => { const next = nextJoke(joke); setJoke(next); setLastJoke(next); }}>🎲</button></div></section>
     {availableReward && <div className="reward-banner" role="status"><span>{availableReward.emoji}</span><div><strong>Joepie {progress.name}! Nieuwe beloning!</strong><p>{availableReward.name} is vrijgespeeld!</p></div><button onClick={() => { setSaved((old) => ({ ...old, lastRewardId: undefined })); setScreen('wardrobe'); }}>Bekijk 👗</button><button className="close-reward" aria-label="Sluiten" onClick={() => setSaved((old) => ({ ...old, lastRewardId: undefined }))}>×</button></div>}
     {errorText && <div className="storage-warning" role="alert">{errorText}</div>}

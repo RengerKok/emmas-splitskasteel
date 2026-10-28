@@ -1,4 +1,5 @@
 import type { Level, OutfitItem, Problem, Progress } from './types';
+import { readTreasureHighscore, readTreasureRound, TREASURE_SECONDS } from './treasure';
 
 export const STORAGE_KEY = 'emmas-magische-splitskasteel-v1';
 
@@ -111,6 +112,36 @@ export function addXp(progress: Progress, amount: number): Progress {
   return { ...progress, xp, unlocked, ...(reward ? { lastRewardId: reward } : {}) };
 }
 
+export function recordAnswer(progress: Progress, problem: Problem, answer: number, hints: number) {
+  const correct = answer === problem.answer;
+  const key = problemKey(problem);
+  if (!correct) {
+    return {
+      correct,
+      xp: 0,
+      progress: {
+        ...progress,
+        solved: progress.solved + 1,
+        tricky: progress.tricky.includes(problem.total) ? progress.tricky : [...progress.tricky, problem.total],
+        wrongByTotal: {
+          ...progress.wrongByTotal,
+          [String(problem.total)]: (progress.wrongByTotal[String(problem.total)] ?? 0) + 1,
+        },
+      },
+    };
+  }
+  const xp = progress.rewardedProblems.includes(key) ? 0 : hints === 0 ? 10 : 6;
+  const updated: Progress = {
+    ...progress,
+    solved: progress.solved + 1,
+    correct: progress.correct + 1,
+    rewardedProblems: xp ? [...progress.rewardedProblems, key] : progress.rewardedProblems,
+    recentProblems: [...progress.recentProblems, key].slice(-20),
+    tricky: progress.tricky.filter((total) => total !== problem.total || progress.wrongByTotal[String(total)]),
+  };
+  return { correct, xp, progress: xp ? addXp(updated, xp) : updated };
+}
+
 export function defaultProgress(): Progress {
   return {
     version: 1,
@@ -128,7 +159,9 @@ export function defaultProgress(): Progress {
     rewardedProblems: [],
     sound: true,
     timerEnabled: true,
-    maxSeconds: 60,
+    maxSeconds: TREASURE_SECONDS,
+    treasureHighscore: null,
+    lastTreasureRound: null,
   };
 }
 
@@ -155,7 +188,9 @@ export function loadProgress(raw: string | null): Progress {
     rewardedProblems: Array.isArray(data.rewardedProblems) ? data.rewardedProblems.filter((key) => typeof key === 'string') : [],
     selectedLevel: data.selectedLevel === 1 || data.selectedLevel === 2 || data.selectedLevel === 3 ? data.selectedLevel : 'auto',
     level: data.level === 2 || data.level === 3 ? data.level : 1,
-    maxSeconds: data.maxSeconds === 30 || data.maxSeconds === 60 || data.maxSeconds === 120 ? data.maxSeconds : 60,
+    maxSeconds: TREASURE_SECONDS,
+    treasureHighscore: readTreasureHighscore(data.treasureHighscore),
+    lastTreasureRound: readTreasureRound(data.lastTreasureRound),
     sound: typeof data.sound === 'boolean' ? data.sound : true,
     timerEnabled: typeof data.timerEnabled === 'boolean' ? data.timerEnabled : true,
   };
