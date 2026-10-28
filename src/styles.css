@@ -116,9 +116,41 @@ footer { margin-top: 15px; text-align: center; color: #a197b0; font-size: .78rem
 .button-row { display: flex; gap: 10px; flex-wrap: wrap; }.secondary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 15px; border: 1px solid #e1d3ee; border-radius: 14px; background: #f8f3fc; color: #68478a; font-weight: 900; cursor: pointer; }.file-button input { display: none; }.success-text { color: #36734d !important; margin: 10px 0 0; }
 .unlocked-list { display: flex; flex-wrap: wrap; gap: 7px; }.unlocked-list span { padding: 7px 9px; border-radius: 11px; background: #f1e8fa; color: #674687; font-size: .8rem; font-weight: 800; }.unlocked-list .locked { background: #f5f2f6; color: #a59ba9; }
 .danger-button { min-height: 48px; padding: 0 17px; border: 1px solid #efc4c6; border-radius: 14px; background: #fff2f1; color: #a34a55; font-weight: 900; cursor: pointer; }
-.wardrobe-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 28px; margin: 23px auto; align-items: start; }.princess-stage { position: sticky; top: 20px; min-height: 420px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 30px; background: radial-gradient(circle at 50% 40%, #fff 0, #f5eafa 68%, #e8d8f3 100%); box-shadow: var(--soft-shadow); overflow: hidden; }.princess-stage h2 { margin: 5px 0 16px; color: #72518a; font-family: 'Baloo 2'; }.princess-stage .princess { width: 220px; height: 280px; }.sparkle { position: absolute; color: #e7b648; font-size: 2rem; animation: float 3s ease-in-out infinite; }.sparkle-one { top: 55px; left: 40px; }.sparkle-two { right: 40px; top: 130px; animation-delay: .6s; }
+.wardrobe-shell { overflow: visible; }
+.wardrobe-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 28px; margin: 23px auto; align-items: start; }
+.princess-stage {
+  position: sticky;
+  top: 20px;
+  min-height: 530px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 12px 18px;
+  border: 1px solid #e8d0b1;
+  border-radius: 150px 150px 30px 30px;
+  background: radial-gradient(ellipse at 50% 34%, #fffdf6 0, #f8e9ed 50%, #d7c3e6 100%);
+  box-shadow: inset 0 0 0 7px #fff9f1, inset 0 0 0 9px #eddbbd, var(--soft-shadow);
+  overflow: hidden;
+}
+.princess-stage::before { content: ''; position: absolute; inset: auto 8% 74px; height: 28px; border-radius: 50%; background: linear-gradient(#fff9ee, #d7b6cb); box-shadow: 0 6px 12px #79557c26; }
+.princess-stage > * { position: relative; }
+.princess-stage .eyebrow { color: #87658e; font-size: .64rem; letter-spacing: .16em; margin: 14px 0 8px; }
+.princess-stage h2 { margin: 2px 0 4px; color: #72518a; font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 1.35rem; }
+.princess-stage .stage-caption { color: #806587; font-size: .8rem; margin: 0; }
+.princess-stage .princess { width: min(100%, 300px); height: 420px; filter: drop-shadow(0 6px 5px #744b6620); }
+.sparkle { position: absolute; color: #e7b648; font-size: 2rem; animation: float 3s ease-in-out infinite; }.sparkle-one { top: 80px; left: 40px; }.sparkle-two { right: 40px; top: 170px; animation-delay: .6s; }
 .wardrobe-items > h1 { color: var(--purple-dark); font-size: 2.1rem; margin-bottom: 4px; }.wardrobe-items > p { color: var(--muted); }.wardrobe-category { margin: 17px 0; }.wardrobe-category h2 { margin: 0 0 8px; color: #6c4a8a; font-family: 'Baloo 2'; font-size: 1.25rem; }.wardrobe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
-.wardrobe-item { min-height: 111px; padding: 9px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 2px solid #e8def0; border-radius: 16px; background: #fff; color: #684a80; font-size: .74rem; font-weight: 900; cursor: pointer; }.wardrobe-item.selected { border-color: #b685da; background: #f7eeff; box-shadow: 0 0 0 3px #eddcf9; }.wardrobe-item:disabled { cursor: not-allowed; }.wardrobe-item.locked { background: #f3f0f3; opacity: .6; }.wardrobe-item small { color: #9a81aa; font-size: .66rem; }.item-emoji { font-size: 1.7rem; }
+.wardrobe-item { min-height: 154px; padding: 9px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border: 2px solid #e8def0; border-radius: 18px; background: linear-gradient(#fffcf8, #f8effb); color: #684a80; font-size: .78rem; font-weight: 900; cursor: pointer; }
+.wardrobe-item.selected { border-color: #b48acb; background: linear-gradient(#fff4d8, #f4e3fa); box-shadow: 0 0 0 3px #eddcf9; }
+.wardrobe-item:disabled { cursor: not-allowed; }
+.wardrobe-item.locked { background: #f5f0f6; }
+.wardrobe-item.locked .outfit-art { opacity: .7; }
+.wardrobe-item small { color: #715184; font-size: .7rem; }
+.outfit-art { display: block; width: 92px; height: 92px; flex-shrink: 0; }
+.reward-banner > .outfit-art { width: 64px; height: 64px; }
+.unlocked-list > span { display: inline-flex; align-items: center; gap: 6px; }
+.unlocked-list .outfit-art { width: 38px; height: 38px; }
 
 .treasure-results { max-width: 800px; margin: 24px auto; text-align: center; }
 .treasure-results h1 { font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; color: var(--purple-dark); font-size: clamp(1.7rem, 4vw, 2.5rem); margin-bottom: 12px; }
@@ -151,6 +183,10 @@ footer { margin-top: 15px; text-align: center; color: #a197b0; font-size: .78rem
 }
 @media (max-width: 500px) {
   .topbar { height: 48px; }.xp-pill { padding: 8px 10px; font-size: .82rem; }.settings-button { min-width: 44px; min-height: 44px; }.home-hero { min-height: 270px; margin-top: 12px; padding: 21px 17px; }.hero-copy { max-width: 71%; }.hero-copy h1 { font-size: 1.8rem; }.hero-copy > p:not(.eyebrow) { line-height: 1.35; }.hero-buttons { gap: 8px; }.hero-buttons .primary-button { padding: 0 15px; min-height: 50px; font-size: .9rem; }.wardrobe-link { min-height: 46px; padding: 0 12px; font-size: .82rem; }.hero-castle { flex-basis: 135px; margin-right: -25px; }.castle { font-size: 6rem; right: -16px; }.hero-princess { left: -20px; bottom: 20px; height: 125px; }.princess-small { width: 96px; height: 125px; }.rainbow { right: 57px; bottom: 26px; font-size: 1.9rem; }.mode-grid { grid-template-columns: 1fr; }.mode-card { min-height: 75px; }.section-heading h2 { font-size: 1.45rem; }.level-chip { font-size: .8rem; padding: 8px 10px; }.home-bottom { gap: 9px; }.progress-card { flex-wrap: wrap; }.progress-track { flex-basis: 100%; }.joke-home { align-items: flex-start; }.joke-home p { font-size: .78rem; }.equation-card { padding: 17px 12px; }.total-orb { width: 78px; height: 78px; font-size: 2.5rem; }.split-box { width: 85px; height: 68px; font-size: 2.3rem; }.number-pad button { min-height: 50px; }.play-content { margin-top: 8px; }.timer-row { flex-wrap: wrap; gap: 8px; font-size: .83rem; }.timer-row span { flex-basis: 100%; }.stats-grid { gap: 7px; }.stat-card { min-height: 86px; padding: 5px; }.stat-card strong { font-size: 1.45rem; }.stat-card span { font-size: .7rem; }.settings-card { padding: 15px; }.wardrobe-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 760px) {
+  .princess-stage { min-height: 430px; }
+  .princess-stage .princess { width: 235px; height: 329px; }
 }
 @media (min-width: 900px) and (orientation: landscape) {
   .play-shell {

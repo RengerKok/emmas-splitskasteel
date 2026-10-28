@@ -63,7 +63,12 @@ Kies een kamer op het kasteelplein. In de Rekentoren en Prinsessenmissie gebruik
 - Rekensommen en beloningen: `src/game.ts`.
 - Spelschermen en navigatie: `src/App.tsx`.
 - Prinsessenillustratie: `src/Princess.tsx`.
+- Gedeelde kleding- en sieradenillustraties: `src/OutfitArt.tsx`. De kleedkamer, beloningsmelding en prinses gebruiken dezelfde SVG-lagen. Verlopen, lichtaccenten, plooien en facetten geven een popachtige 3D-uitstraling zonder externe afbeeldingen of zware 3D-engine. Bestaande kleding-ID's, XP-drempels en opgeslagen outfits blijven gelijk.
 - Kleuren, lay-out en animaties: `src/styles.css`.
 - Offlinecache: `public/sw.js`.
 
 De PWA-cache bevat de appbestanden van de build. De optionele lettertypen komen van Google Fonts als er internet is; bij offline gebruik vallen ze terug op systeemlettertypen.
+
+### Browserklok bij testen
+
+De timer gebruikt de browserklok. Pauzeer een gesimuleerde klok uitsluitend in een aparte testcontext. Als de Playwright-klok in de gedeelde voorbeeldbrowser wordt gebruikt, herstel dan altijd de actuele systeemtijd en hervat de klok voordat iemand weer gaat spelen. Controleer daarna met echte wachttijd dat de timer aftelt; een achtergebleven gepauzeerde testklok bevriest ook de voorbeeldapp.

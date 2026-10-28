@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { addXp, createProblem, defaultProgress, getLevel, loadProgress, makeChoices, nextJoke, OUTFITS, problemKey, PRAISE, recordAnswer, STORAGE_KEY } from './game';
 import Princess from './Princess';
+import OutfitArt from './OutfitArt';
 import TreasureResults, { TreasureRecord } from './TreasureResults';
 import { pauseTreasureClock, remainingTime, resumeTreasureClock, saveTreasureRound, startTreasureClock, TREASURE_SECONDS } from './treasure';
 import type { Level, Mode, OutfitCategory, Problem, Progress, TreasureAttempt, TreasureRound } from './types';
@@ -310,7 +311,7 @@ function App() {
           {notice && <p className="success-text">{notice}</p>}{errorText && <p className="error-text" role="alert">{errorText}</p>}
         </div>
         <div className="settings-card"><h2>Beloningen</h2><p>{progress.unlocked.length} van {OUTFITS.length} kledingstukken vrijgespeeld</p>
-          <div className="unlocked-list">{OUTFITS.map((item) => <span key={item.id} className={progress.unlocked.includes(item.id) ? '' : 'locked'}>{item.emoji} {item.name}</span>)}</div>
+          <div className="unlocked-list">{OUTFITS.map((item) => <span key={item.id} className={progress.unlocked.includes(item.id) ? '' : 'locked'}><OutfitArt item={item} /> {item.name}</span>)}</div>
         </div>
         <button className="danger-button" onClick={() => {
           if (window.confirm('Weet je zeker dat je alle voortgang en beloningen wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
@@ -326,13 +327,13 @@ function App() {
       { id: 'dress', title: 'Jurken' }, { id: 'shoes', title: 'Schoenen' }, { id: 'crown', title: 'Kroontjes' },
       { id: 'hair', title: 'Haar' }, { id: 'wand', title: 'Toverstaven' }, { id: 'wings', title: 'Vleugels' },
     ];
-    return <main className="app-shell"><header className="topbar"><button className="back-button" onClick={() => setScreen('home')}>← Terug</button><div className="brand-mini">👗 Kleedkamer</div><div className="xp-pill">✨ {progress.xp} XP</div></header>
-      <section className="wardrobe-layout"><div className="princess-stage"><Princess outfit={progress.outfit} /><div className="sparkle sparkle-one">✦</div><div className="sparkle sparkle-two">✧</div><h2>Jouw magische prinses</h2></div>
+    return <main className="app-shell wardrobe-shell"><header className="topbar"><button className="back-button" onClick={() => setScreen('home')}>← Terug</button><div className="brand-mini">👗 Kleedkamer</div><div className="xp-pill">✨ {progress.xp} XP</div></header>
+      <section className="wardrobe-layout"><div className="princess-stage"><p className="eyebrow">HET KONINKLIJKE ATELIER</p><Princess outfit={progress.outfit} /><div className="sparkle sparkle-one" aria-hidden="true">✦</div><div className="sparkle sparkle-two" aria-hidden="true">✧</div><h2>Jouw magische prinses</h2><p className="stage-caption">Een beetje glans, helemaal van jou.</p></div>
         <div className="wardrobe-items"><h1>Kies je outfit</h1><p>Tik op een vrijgespeeld kledingstuk om het aan te trekken.</p>
           {categories.map((category) => <div className="wardrobe-category" key={category.id}><h2>{category.title}</h2><div className="wardrobe-grid">{OUTFITS.filter((item) => item.category === category.id).map((item) => {
             const unlocked = progress.unlocked.includes(item.id);
-            return <button key={item.id} className={`wardrobe-item ${progress.outfit[category.id] === item.id ? 'selected' : ''} ${unlocked ? '' : 'locked'}`} disabled={!unlocked} onClick={() => setSaved((old) => ({ ...old, outfit: { ...old.outfit, [category.id]: item.id } }))}>
-              <span className="item-emoji">{item.emoji}</span><span>{item.name}</span>{unlocked ? <small>Vrijgespeeld</small> : <small>🔒 {item.cost} XP</small>}
+            return <button key={item.id} className={`wardrobe-item ${progress.outfit[category.id] === item.id ? 'selected' : ''} ${unlocked ? '' : 'locked'}`} aria-label={`${item.name}, ${unlocked ? progress.outfit[category.id] === item.id ? 'aangetrokken' : 'trek aan' : `${item.cost} XP nodig`}`} aria-pressed={progress.outfit[category.id] === item.id} disabled={!unlocked} onClick={() => setSaved((old) => ({ ...old, outfit: { ...old.outfit, [category.id]: item.id } }))}>
+              <OutfitArt item={item} /><span>{item.name}</span>{unlocked ? <small>{progress.outfit[category.id] === item.id ? '✓ Aangetrokken' : 'Trek aan'}</small> : <small>🔒 {item.cost} XP</small>}
             </button>;
           })}</div></div>)}
         </div>
@@ -394,7 +395,7 @@ function App() {
       {progress.lastTreasureRound && <button className="secondary-button" onClick={() => setScreen('treasure-results')}>📖 Mijn schattenboek</button>}
     </section>}
     <section className="home-bottom"><div className="progress-card"><span>🌟</span><div><strong>Jouw sterrenreis</strong><small>{progress.correct} sommen goed · {progress.unlocked.length} beloningen</small></div><div className="progress-track"><i style={{ width: `${Math.min(100, (progress.xp % 100))}%` }} /></div></div><div className="joke-home"><span>😄</span><p>{joke}</p><button aria-label="Nieuw grapje" onClick={() => { const next = nextJoke(joke); setJoke(next); setLastJoke(next); }}>🎲</button></div></section>
-    {availableReward && <div className="reward-banner" role="status"><span>{availableReward.emoji}</span><div><strong>Joepie {progress.name}! Nieuwe beloning!</strong><p>{availableReward.name} is vrijgespeeld!</p></div><button onClick={() => { setSaved((old) => ({ ...old, lastRewardId: undefined })); setScreen('wardrobe'); }}>Bekijk 👗</button><button className="close-reward" aria-label="Sluiten" onClick={() => setSaved((old) => ({ ...old, lastRewardId: undefined }))}>×</button></div>}
+    {availableReward && <div className="reward-banner" role="status"><OutfitArt item={availableReward} /><div><strong>Joepie {progress.name}! Nieuwe beloning!</strong><p>{availableReward.name} is vrijgespeeld!</p></div><button onClick={() => { setSaved((old) => ({ ...old, lastRewardId: undefined })); setScreen('wardrobe'); }}>Bekijk 👗</button><button className="close-reward" aria-label="Sluiten" onClick={() => setSaved((old) => ({ ...old, lastRewardId: undefined }))}>×</button></div>}
     {errorText && <div className="storage-warning" role="alert">{errorText}</div>}
     <footer>Alle magie blijft veilig op dit apparaat. 💜</footer>
   </main>;

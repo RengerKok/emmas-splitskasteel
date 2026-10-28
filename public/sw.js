@@ -1,4 +1,4 @@
-const CACHE = 'splitskasteel-v3';
+const CACHE = 'splitskasteel-v4.2';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg'];
 
 self.addEventListener('install', (event) => {
