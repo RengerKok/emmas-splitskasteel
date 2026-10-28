@@ -39,6 +39,12 @@ Vitest controleert de rekengenerator, antwoordopties, niveaus, XP-beloningen en 
 
 GitHub Pages is een gratis statische host. Voor deze webapp is geen Apple-ontwikkelaarslicentie nodig.
 
+### Liggend spelen en bijwerken
+
+Op brede schermen in liggende stand (vanaf 900 CSS-pixels) staan de opgave en de antwoordknoppen naast elkaar. Zo blijft de knop **Controleer** op een iPad 8e generatie bereikbaar zonder omlaag te scrollen, met grote cijfertoetsen. In staande stand blijft de indeling onder elkaar.
+
+Na publicatie van een update: open de app met internet aan, wacht even en sluit en heropen de app. De nieuwe offlinecache wordt dan gebruikt. Wis geen websitegegevens en verwijder de app niet: de bestaande lokale voortgang moet behouden blijven.
+
 ## Spelen en voortgang
 
 Kies een kamer op het kasteelplein. In de Rekentoren en Prinsessenmissie gebruikt Emma het grote toetsenbord; de Toverkamer geeft meerkeuzevragen; in de Magische Tuin verdeelt ze voorwerpen; de Schatkamer is optioneel en heeft pauze en drie tijdsduren. Hints, niveaukeuze, geluid en ouderinstellingen zijn beschikbaar. XP en kleding worden lokaal bewaard. De ouderhoek kan voortgang exporteren naar JSON en later weer importeren. Bewaar het JSON-bestand op een vertrouwde plek; het bevat geen achternaam, geboortedatum of andere profielgegevens.
