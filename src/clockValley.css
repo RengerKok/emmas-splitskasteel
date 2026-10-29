@@ -1,0 +1,144 @@
+.valley-shell { color: #30594e; background: linear-gradient(180deg, #f3fbf9, #fbfcf1); overflow: visible; }
+.valley-shell h1, .valley-shell h2 { font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; letter-spacing: 0; line-height: 1.18; }
+.valley-shell h1 { font-size: 2rem; margin-bottom: 20px; }
+.valley-shell h2 { font-size: 1.4rem; }
+.valley-shell .brand-mini, .valley-shell .back-button { color: #34685a; }
+.valley-topbar { height: auto; min-height: 54px; flex-wrap: wrap; }
+.valley-shell button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.valley-shell button:disabled { cursor: default; }
+.valley-shell .primary-button { color: #514330; }
+.valley-shell .secondary-button, .valley-shell .hint-button { background: #fff; color: #366e62; border-color: #b7d4c8; }
+.valley-world { position: relative; margin: 24px -34px 0; background: #def3f4; isolation: isolate; overflow: hidden; }
+.valley-heading { padding: 22px 24px 0; text-align: center; position: relative; z-index: 1; }
+.valley-heading h1 { font-size: 2.4rem; color: #2b6655; margin: 0; }
+.valley-heading p { font-size: .9rem; margin-bottom: 5px; }
+.valley-landscape { display: block; width: 100%; aspect-ratio: 1100 / 360; }
+.valley-friend { position: absolute; width: 25%; right: 12%; bottom: 1%; }
+.valley-friend .unicorn-avatar { aspect-ratio: 400 / 330; }
+.valley-level { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 17px 0; font-size: .95rem; font-weight: 800; }
+.valley-destinations { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.valley-destination { display: grid; justify-items: start; align-content: start; gap: 7px; padding: 16px; border: 2px solid #c1e0cf; border-radius: 8px; background: #e8f5e9; text-align: left; color: #32594e; cursor: pointer; min-height: 157px; }
+.valley-destination:nth-child(2) { background: #e5f3fc; border-color: #bfdce9; }
+.valley-destination:nth-child(3) { background: #fff2ce; border-color: #ecd99d; }
+.valley-destination:nth-child(4) { background: #ffe8ee; border-color: #efc7d4; }
+.valley-destination > span { font-size: 2rem; }
+.valley-destination strong { font-size: 1.06rem; }
+.valley-destination small { font-size: .85rem; }
+.valley-destination:hover { border-color: #448e78; }
+.valley-lesson-link { margin: 20px 0; }
+.analog-clock { width: min(100%, 385px); aspect-ratio: 1; display: block; margin: auto; overflow: visible; }
+.clock-editable { touch-action: none; user-select: none; -webkit-user-select: none; }
+.clock-editable [data-hand] { cursor: grab; }
+.clock-editable [data-hand]:active { cursor: grabbing; }
+.clock-hand { transition: transform .24s ease-out; }
+.clock-hand:focus-visible { outline: none; filter: drop-shadow(0 0 4px #dca816); }
+.clock-exercise { padding-top: 20px; }
+.clock-question-heading { display: flex; align-items: flex-start; justify-content: center; gap: 12px; margin-bottom: 18px; }
+.clock-question-heading h1 { font-size: 1.6rem; margin: 0; text-align: center; max-width: 760px; overflow-wrap: anywhere; }
+.clock-speak { flex: 0 0 48px; height: 48px; font-size: 1.3rem; background: #fff; border: 1px solid #b7d4c8; border-radius: 8px; cursor: pointer; }
+.clock-speak:disabled { opacity: .4; }
+.clock-exercise-layout, .clock-lesson-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 32px; }
+.clock-workspace { align-self: start; }
+.clock-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; font-size: .9rem; font-weight: 800; margin: 12px 0; }
+.hour-label { color: #ac396c; }.minute-label { color: #1d6b8d; }
+.clock-answer-area { text-align: center; min-width: 0; }
+.clock-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.clock-option { min-height: 92px; display: flex; align-items: center; gap: 12px; padding: 12px; border: 2px solid #bedacc; border-radius: 8px; background: #fff; color: #30594e; cursor: pointer; font-size: 1.1rem; text-align: left; font-weight: 800; }
+.clock-option > span { color: #628378; font-size: .8rem; }
+.clock-option.correct { border-color: #40876a; background: #d7f0dd; }
+.clock-option.try-again { border-color: #cf88a4; background: #fff0f5; }
+.clock-picture-options .clock-option { position: relative; padding: 6px; }
+.clock-picture-options .clock-option > span { position: absolute; top: 5px; left: 7px; }
+.clock-picture-options .analog-clock { width: min(100%, 185px); }
+.clock-controls { display: grid; gap: 12px; margin: 12px auto 20px; max-width: 430px; }
+.clock-controls > div { display: grid; grid-template-columns: minmax(0, 1fr) 64px 64px; align-items: center; gap: 10px; text-align: left; }
+.clock-controls span { font-weight: 800; }
+.clock-controls button { height: 58px; border-radius: 8px; border: 2px solid #bcd6cc; background: #fff; color: #256d60; font-size: 1.8rem; font-weight: 800; cursor: pointer; }
+.clock-controls > div:first-child button { color: #ac396c; background: #fff3f7; border-color: #e8c2d3; }
+.clock-controls > div:last-child button { color: #1d6b8d; background: #edf8ff; border-color: #bbdce9; }
+.clock-controls button:disabled { opacity: .5; }
+.clock-check { width: 100%; padding: 12px; }
+.clock-feedback { min-height: 60px; padding-top: 12px; }
+.clock-feedback p { padding: 12px; border-radius: 8px; margin: 0 0 10px; font-weight: 800; line-height: 1.4; }
+.clock-hint { margin-top: 12px; padding: 16px 0; text-align: left; border-top: 2px solid #ecd68b; }
+.clock-hint p { line-height: 1.5; margin: 6px 0; }
+.clock-hint-position { font-size: 1.2rem; font-weight: 800; color: #1d6b8d; margin-top: 10px; }
+.clock-demonstration { text-align: center; padding-top: 12px; }
+.clock-demonstration .analog-clock { width: 215px; }
+.clock-demonstration strong { display: block; margin: 10px; }
+.clock-joke { text-align: left; padding-top: 16px; border-top: 1px solid #dfcd8f; color: #79642f; line-height: 1.5; }
+.clock-tutorial, .unicorn-stable, .clock-missions { padding-top: 24px; }
+.clock-lesson-copy p { line-height: 1.6; }
+.lesson-guide { display: flex; align-items: center; gap: 16px; }
+.lesson-guide .unicorn-avatar { width: 120px; }
+.lesson-guide h2 { margin: 0; }
+.clock-presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
+.clock-presets button[aria-pressed=true] { border-color: #367d66; background: #e1f3e7; }
+.clock-mission-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.clock-mission { display: grid; grid-template-columns: 46px 1fr; gap: 6px 12px; align-items: center; min-height: 104px; background: #fff; border: 1px solid #bcd7c9; border-radius: 8px; padding: 16px; color: #30594e; text-align: left; cursor: pointer; }
+.clock-mission > span { grid-row: span 2; font-size: 2rem; }.clock-mission small { color: #637c70; }
+.clock-mission-progress { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-bottom: 18px; }
+.clock-mission-progress progress { flex-basis: 100%; width: 100%; height: 12px; accent-color: #529879; }
+.clock-finished { text-align: center; padding: 20px 0; }
+.clock-finished > .unicorn-avatar { width: min(100%, 360px); margin: 0 auto 15px; }
+.clock-finished > strong { display: block; margin: 12px 0; font-size: 1.5rem; color: #997114; }
+.clock-finished .button-row { justify-content: center; }
+.unicorn-avatar { display: block; width: 100%; aspect-ratio: 400 / 330; }
+.unicorn-celebrate .unicorn-body { transform-origin: 200px 280px; animation: unicorn-dance .8s ease-in-out 3; }
+.unicorn-sparkles { animation: sparkle-party 1s ease-in-out 3; }
+@keyframes unicorn-dance { 25% { transform: translateY(-7px) rotate(-2deg); } 75% { transform: translateY(-4px) rotate(2deg); } }
+@keyframes sparkle-party { 50% { opacity: .25; } }
+.unicorn-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.unicorn-pick { border: 2px solid #b7d5c9; border-radius: 8px; padding: 8px; background: white; cursor: pointer; color: #34685a; }
+.unicorn-pick strong { display: block; padding: 14px; font-size: 1.2rem; }
+.stable-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px; align-items: start; }
+.stable-stage { position: sticky; top: 16px; text-align: center; }
+.unicorn-name { display: grid; gap: 7px; margin: 16px 0; font-weight: 800; text-align: left; }
+.unicorn-name input, .shop-category select, .clock-parent select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid #b7cfc2; border-radius: 8px; color: #325f52; background: #fff; }
+.care-buttons { justify-content: center; }.care-buttons button { flex: 1; padding: 10px; }
+.care-message { min-height: 48px; margin: 14px 0 0; line-height: 1.5; }
+.shop-heading h2 { margin-bottom: 6px; }.shop-heading > strong { color: #95681d; display: block; margin-bottom: 20px; }
+.shop-category { display: grid; gap: 6px; font-weight: 800; margin: 0 0 18px; }
+.unicorn-shop-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.unicorn-shop-item { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; min-height: 140px; border: 2px solid #d3ded5; border-radius: 8px; background: #fff; padding: 10px; cursor: pointer; color: #345d4f; }
+.unicorn-shop-item > .unicorn-avatar { max-height: 130px; }
+.unicorn-shop-item > strong { font-size: .92rem; }.unicorn-shop-item > span { font-size: .85rem; }
+.unicorn-shop-item > small { color: #876448; }
+.unicorn-shop-item.selected { border-color: #3a846a; background: #eff9ed; }
+.unicorn-shop-item:disabled { background: #f4f4f0; border-style: dashed; }
+.unicorn-swatch { display: block; width: 52px; height: 52px; border: 3px solid #fff; box-shadow: 0 0 0 1px #bbcfc2; border-radius: 50%; margin: 8px; }
+.shop-message { margin-top: 16px; min-height: 42px; font-weight: 800; }
+.clock-parent { margin: 24px 0; padding: 22px 0; border-top: 2px solid #c4decb; border-bottom: 2px solid #c4decb; }
+.clock-parent > h2 { color: #386e59; }.clock-parent > p { line-height: 1.5; }.clock-parent > label { display: grid; gap: 8px; font-weight: 800; margin: 14px 0; }
+.clock-skills { display: grid; gap: 14px; margin: 20px 0; }
+.clock-skills > div { display: grid; grid-template-columns: 125px minmax(80px, 1fr) 110px 130px; align-items: center; gap: 12px; font-size: .9rem; }
+.clock-skills progress { width: 100%; accent-color: #539778; }.clock-skills small { color: #627568; }
+.clock-purchases { columns: 2; padding-left: 20px; font-size: .9rem; line-height: 1.8; }
+@media (max-width: 760px) {
+  .valley-world { margin-left: -16px; margin-right: -16px; }
+  .valley-heading h1 { font-size: 2rem; }
+  .valley-destinations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .valley-destination { min-height: 135px; }
+  .clock-exercise-layout, .clock-lesson-layout { grid-template-columns: 1fr; gap: 16px; }
+  .clock-workspace .analog-clock { width: min(100%, 310px); }
+  .clock-question-heading h1 { font-size: 1.4rem; }
+  .clock-answer-area { max-width: 520px; width: 100%; margin: auto; }
+  .stable-layout { grid-template-columns: 1fr; }.stable-stage { position: static; max-width: 430px; width: 100%; margin: auto; }
+  .unicorn-choices { gap: 8px; }.unicorn-pick strong { font-size: .95rem; padding: 10px 0; }
+  .clock-skills > div { grid-template-columns: 110px 1fr; gap: 5px 12px; }
+  .clock-skills > div > span { grid-column: 2; }.clock-skills small { grid-column: 2; }
+}
+@media (max-width: 450px) {
+  .valley-topbar { gap: 8px; }.valley-topbar .brand-mini { font-size: .8rem; }
+  .valley-topbar .back-button { padding: 0 10px; }
+  .valley-heading h1 { font-size: 1.7rem; }.valley-heading { padding: 18px 16px 12px; }
+  .valley-landscape { width: 150%; margin-left: -25%; }.valley-friend { width: 37%; right: 4%; }
+  .valley-level { font-size: .8rem; }.valley-destination { padding: 12px; }.valley-destination strong { font-size: .95rem; }
+  .clock-options { gap: 8px; }.clock-option { font-size: 1rem; min-height: 75px; padding: 10px; gap: 6px; }
+  .clock-controls > div { grid-template-columns: minmax(0, 1fr) 58px 58px; gap: 8px; }
+  .clock-controls span { font-size: .88rem; }.clock-mission-list { grid-template-columns: 1fr; }
+  .unicorn-choices { grid-template-columns: 1fr; }.unicorn-pick { display: flex; align-items: center; }.unicorn-pick .unicorn-avatar { width: 55%; }
+  .unicorn-stable h1, .clock-missions h1, .clock-tutorial h1 { font-size: 1.7rem; }
+  .clock-purchases { columns: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .clock-hand { transition: none; }.unicorn-celebrate .unicorn-body, .unicorn-sparkles { animation: none; } }

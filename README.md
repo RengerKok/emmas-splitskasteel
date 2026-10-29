@@ -60,6 +60,33 @@ Kies een kamer op het kasteelplein. In de Rekentoren en Prinsessenmissie gebruik
 
 ## Uitbreiden
 
+### De Magische Klokkenvallei
+
+Vanaf het kasteel opent **Naar de Klokkenvallei!** een tweede speelgebied binnen dezelfde PWA. De bestaande rekenspellen, prinsessen, outfits en schatkamer blijven beschikbaar.
+
+- **Welke tijd is het?** geeft vier unieke Nederlandse antwoordopties. **Zet de klok goed!** heeft versleepbare wijzers, toetsenbordbediening met de pijltjestoetsen op een geselecteerde wijzer, en vier grote uur-/kwartierknoppen. Beide wijzers gebruiken dezelfde tijdwaarde in kwartierstappen, inclusief uurgrenzen.
+- **Sterretjes klokkenles** laat hele uren, halve uren en kwartieren zien. Tijdens oefeningen bieden hints achtereenvolgens een kijktip, een gemarkeerde minutenpositie en een voorbeeldklok. De ingestelde tijd wordt alleen bij de laatste hint uitgeschreven.
+- **Tien eenhoornmissies** bevatten elk zes afwisselende instel- en klokkeuzevragen, zonder tijdslimiet. De verrassingsknop kiest uit de minst gespeelde missies. Missietijden passen bij het ingestelde niveau. Bij verlaten of herladen vervalt een onvoltooide ronde; reeds verdiende XP blijven bewaard.
+- **Mijn eenhoornstal** biedt drie originele eenhoorns, een eigen naam, verzorgen en 27 combineerbare kleding-/kleurkeuzes. Vijf keuzes zijn gratis. Aankopen trekken het item direct aan en blijven permanent beschikbaar; alle beloningen gebruiken uitsluitend virtuele XP.
+- De ouderhoek toont pogingen, afgeronde opgaven, nauwkeurigheid per categorie, missieaantallen, klok-XP en aankopen. Het niveau kan vastgezet worden op 1 t/m 4 of automatisch oplopen: hele uren, halve uren, kwart over, kwart voor. Een categorie is beheerst na zes zelfstandige goede antwoorden, waarvan de laatste drie achter elkaar, en minimaal 75% juiste pogingen. Lastige categorieën en fout beantwoorde tijden komen vaker terug, afgewisseld met bekende tijden.
+- XP: 10 voor meerkeuze, 15 voor instellen, 6 na een hint of eerdere fout, 30 per afgeronde missie en eenmaal 40 per beheerst niveau. Een fout kost niets. Automatisch getoonde extra hulp telt als hint. Klok-XP gebruikt dezelfde beloningsfunctie als splitsen en kan dus ook prinsessenoutfits vrijspelen.
+- Voorlezen gebruikt uitsluitend een beschikbare Nederlandse browserstem met `localService`. Zonder lokale Nederlandse stem of bij uitgeschakeld geluid blijft de opdracht leesbaar en is de voorleesknop uitgeschakeld. Of een stem op een echte iPad offline beschikbaar is, hangt af van Safari en de geïnstalleerde apparaatstemmen.
+
+#### Opslag en migratie
+
+De bestaande LocalStorage-sleutel `emmas-magische-splitskasteel-v1` blijft gelijk. Het document krijgt `version: 2`, `availableXp`, `clock` en `unicorn`. Bij migratie van versie 1 blijft `xp` het totaal verdiende XP en krijgt het nieuwe saldo hetzelfde beginsaldo. Oude prinsessenbeloningen waren ontgrendelingen, geen aankopen; er wordt daarom niets afgetrokken. Aankopen verlagen uitsluitend `availableXp`. Bestaande kleding-ID's, aangeklede outfits, somgeschiedenis en schatkamergegevens blijven behouden.
+
+JSON-export/import omvat alle nieuwe velden en accepteert nog steeds versie 1. Onleesbare en onbekende toekomstige versies worden niet automatisch overschreven: opslaan wordt geblokkeerd totdat een geldige kopie is geïmporteerd of een ouder bewust opnieuw begint. De offlinecache wordt vernieuwd zonder LocalStorage te wissen. Maak voor updates bij voorkeur een export in de ouderhoek.
+
+#### Bestanden en controles
+
+- `src/clock.ts` en `src/clock.test.ts`: klokformules, Nederlandse tijden, niveaus, adaptatie, migratie-/XP-/aankooptests en SVG-controles.
+- `src/ClockValley.tsx`, `src/AnalogClock.tsx`, `src/clockContent.ts`: oefenschermen, lessen, hints, missies, 26 complimenten en 20 grapjes.
+- `src/UnicornStable.tsx`, `src/UnicornAvatar.tsx`, `src/unicorn.ts`: verzorging, winkel en combineerbare SVG-lagen.
+- `src/ClockValleyScene.tsx` en `src/clockValley.css`: originele landschapstekening en touchvriendelijke lay-out.
+
+Voer `npm test` en `npm run build` uit. Op Windows met een beperkte PowerShell-scriptpolicy kan `npm.cmd` worden gebruikt. Controleer op een echte iPad aanvullend slepen met een vinger, de lokale Nederlandse stem en offline heropenen nadat de productieversie eenmaal online geladen is.
+
 - Rekensommen en beloningen: `src/game.ts`.
 - Spelschermen en navigatie: `src/App.tsx`.
 - Prinsessenillustratie: `src/Princess.tsx`.

@@ -1,3 +1,6 @@
+import type { ClockProgress } from './clock';
+import type { UnicornProgress } from './unicorn';
+
 export type Mode = 'tower' | 'magic' | 'treasure' | 'garden' | 'mission';
 export type Level = 1 | 2 | 3;
 export type OutfitCategory = 'dress' | 'shoes' | 'crown' | 'hair' | 'wand' | 'wings';
@@ -36,9 +39,12 @@ export interface TreasureHighscore {
 }
 
 export interface Progress {
-  version: 1;
+  version: 2;
   name: string;
   xp: number;
+  availableXp: number;
+  clock: ClockProgress;
+  unicorn: UnicornProgress;
   solved: number;
   correct: number;
   level: Level;

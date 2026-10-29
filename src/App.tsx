@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { addXp, createProblem, defaultProgress, getLevel, loadProgress, makeChoices, nextJoke, OUTFITS, problemKey, PRAISE, recordAnswer, STORAGE_KEY } from './game';
 import Princess from './Princess';
 import OutfitArt from './OutfitArt';
+import ClockValley, { ClockProgressPanel } from './ClockValley';
 import TreasureResults, { TreasureRecord } from './TreasureResults';
 import { pauseTreasureClock, remainingTime, resumeTreasureClock, saveTreasureRound, startTreasureClock, TREASURE_SECONDS } from './treasure';
 import type { Level, Mode, OutfitCategory, Problem, Progress, TreasureAttempt, TreasureRound } from './types';
 
-type Screen = 'home' | 'play' | 'wardrobe' | 'parent' | 'treasure-results';
+type Screen = 'home' | 'play' | 'wardrobe' | 'parent' | 'treasure-results' | 'valley';
 const MODES: { id: Mode; title: string; subtitle: string; icon: string; color: string }[] = [
   { id: 'tower', title: 'Rekentoren', subtitle: 'Vul de splitsing in', icon: '🏰', color: 'lilac' },
   { id: 'magic', title: 'Toverkamer', subtitle: 'Kies het juiste antwoord', icon: '🪄', color: 'blue' },
@@ -37,14 +38,16 @@ function makeProgressProblem(progress: Progress, visual = false): Problem {
 }
 
 function App() {
-  const [progress, setProgress] = useState<Progress>(() => {
+  const [initialStorage] = useState(() => {
     try {
-      return loadProgress(localStorage.getItem(STORAGE_KEY));
+      return { progress: loadProgress(localStorage.getItem(STORAGE_KEY)), blocked: false };
     } catch (error) {
       console.error('De opgeslagen voortgang kon niet worden gelezen.', error);
-      return defaultProgress();
+      return { progress: defaultProgress(), blocked: true };
     }
   });
+  const [progress, setProgress] = useState<Progress>(initialStorage.progress);
+  const [storageBlocked, setStorageBlocked] = useState(initialStorage.blocked);
   const [screen, setScreen] = useState<Screen>('home');
   const [mode, setMode] = useState<Mode>('tower');
   const [problem, setProblem] = useState<Problem>(() => makeProgressProblem(defaultProgress()));
@@ -67,23 +70,17 @@ function App() {
   const [joke, setJoke] = useState(() => nextJoke());
   const [lastJoke, setLastJoke] = useState('');
   const [notice, setNotice] = useState('');
-  const [errorText, setErrorText] = useState(() => {
-    try {
-      loadProgress(localStorage.getItem(STORAGE_KEY));
-      return '';
-    } catch {
-      return 'De opgeslagen voortgang was beschadigd. Er is een nieuwe voortgang gestart.';
-    }
-  });
+  const [errorText, setErrorText] = useState(initialStorage.blocked ? 'De opgeslagen voortgang kon niet worden gelezen. Het oorspronkelijke bestand blijft bewaard. Nieuwe voortgang wordt nu niet opgeslagen. Importeer een geldige kopie via de ouderhoek.' : '');
 
   useEffect(() => {
+    if (storageBlocked) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
     } catch (error) {
       console.error('De voortgang kon niet op dit apparaat worden bewaard.', error);
       setErrorText('Opslaan lukt niet. Controleer de beschikbare opslagruimte op dit apparaat.');
     }
-  }, [progress]);
+  }, [progress, storageBlocked]);
 
   const finishTreasure = useCallback((now: number) => {
     if (treasureClock.current.finished) return;
@@ -275,6 +272,7 @@ function App() {
     try {
       const restored = loadProgress(await file.text());
       setProgress(restored);
+      setStorageBlocked(false);
       setNotice('De voortgang is veilig teruggezet. ✨');
       setErrorText('');
     } catch (error) {
@@ -282,9 +280,13 @@ function App() {
     }
   }
 
+  if (screen === 'valley') {
+    return <ClockValley progress={progress} setProgress={setProgress} onHome={() => setScreen('home')} onChime={playChime} storageError={errorText} />;
+  }
+
   if (screen === 'parent') {
     return <main className="app-shell parent-shell">
-      <header className="topbar"><button className="back-button" onClick={() => { setScreen('home'); setErrorText(''); }}>← Terug</button><div className="brand-mini">🛡️ Ouderhoek</div><div className="xp-pill">✨ {progress.xp} XP</div></header>
+      <header className="topbar"><button className="back-button" onClick={() => { setScreen('home'); if (!storageBlocked) setErrorText(''); }}>← Terug</button><div className="brand-mini">🛡️ Ouderhoek</div><div className="xp-pill">✨ {progress.xp} XP</div></header>
       <section className="parent-content">
         <p className="eyebrow">ALLEEN OP DIT APPARAAT</p><h1>Emma's voortgang</h1>
         <div className="stats-grid">
@@ -303,6 +305,7 @@ function App() {
           <label className="check-label"><input type="checkbox" checked={progress.sound} onChange={(event) => setSaved((old) => ({ ...old, sound: event.target.checked }))} /> Geluid aan</label>
           <label className="check-label"><input type="checkbox" checked={progress.timerEnabled} onChange={(event) => setSaved((old) => ({ ...old, timerEnabled: event.target.checked }))} /> Schatkamer beschikbaar</label>
         </div>
+        <ClockProgressPanel progress={progress} setProgress={setProgress} />
         <TreasureRecord highscore={progress.treasureHighscore} />
         {progress.lastTreasureRound && <button className="secondary-button" onClick={() => setScreen('treasure-results')}>📖 Bekijk het laatste schattenboek</button>}
         <div className="settings-card">
@@ -315,7 +318,7 @@ function App() {
         </div>
         <button className="danger-button" onClick={() => {
           if (window.confirm('Weet je zeker dat je alle voortgang en beloningen wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
-            setProgress(defaultProgress()); setNotice('Alle voortgang is opnieuw gestart.'); setErrorText('');
+            setProgress(defaultProgress()); setStorageBlocked(false); setNotice('Alle voortgang is opnieuw gestart.'); setErrorText('');
           }
         }}>🔄 Begin opnieuw</button>
       </section>
@@ -390,6 +393,7 @@ function App() {
     <section className="mode-section"><div className="section-heading"><div><p className="eyebrow">KIES JE AVONTUUR</p><h2>Waar gaan we heen?</h2></div><div className="level-chip">🌱 {progress.selectedLevel === 'auto' ? 'Niveau ' + getLevel(progress) : `Niveau ${progress.selectedLevel}`}</div></div>
       <div className="mode-grid">{MODES.filter((item) => item.id !== 'treasure' || progress.timerEnabled).map((item) => <button key={item.id} className={`mode-card ${item.color}`} onClick={() => begin(item.id)}><span className="mode-icon">{item.icon}</span><span className="mode-text"><strong>{item.title}</strong><small>{item.subtitle}</small></span><span className="mode-arrow">→</span></button>)}</div>
     </section>
+    <section className="home-treasure"><button className="primary-button" onClick={() => setScreen('valley')}>Naar de Klokkenvallei! 🦄</button></section>
     {progress.timerEnabled && <section className="home-treasure">
       <TreasureRecord highscore={progress.treasureHighscore} />
       {progress.lastTreasureRound && <button className="secondary-button" onClick={() => setScreen('treasure-results')}>📖 Mijn schattenboek</button>}

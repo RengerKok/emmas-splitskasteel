@@ -1,5 +1,8 @@
 import type { Level, OutfitItem, Problem, Progress } from './types';
 import { readTreasureHighscore, readTreasureRound, TREASURE_SECONDS } from './treasure';
+import { categoriesFor, categoryOf, clockLevel, defaultClockProgress, readClockProgress, skillMastered } from './clock';
+import type { ClockMode } from './clock';
+import { defaultUnicorn, readUnicorn } from './unicorn';
 
 export const STORAGE_KEY = 'emmas-magische-splitskasteel-v1';
 
@@ -109,7 +112,32 @@ export function addXp(progress: Progress, amount: number): Progress {
     ...OUTFITS.filter((item) => item.cost <= xp).map((item) => item.id),
   ])];
   const reward = unlocked.find((id) => !before.has(id));
-  return { ...progress, xp, unlocked, ...(reward ? { lastRewardId: reward } : {}) };
+  return { ...progress, xp, availableXp: progress.availableXp + amount, unlocked, ...(reward ? { lastRewardId: reward } : {}) };
+}
+
+export function recordClockAnswer(progress: Progress, time: number, correct: boolean, mode: ClockMode, assisted: boolean): Progress {
+  const category = categoryOf(time);
+  const skill = progress.clock.skills[category];
+  const independent = correct && !assisted;
+  const clock = { ...progress.clock,
+    answered: progress.clock.answered + Number(correct),
+    skills: { ...progress.clock.skills, [category]: { attempts: skill.attempts + 1, correct: skill.correct + Number(correct), independent: skill.independent + Number(independent), streak: independent ? skill.streak + 1 : 0 } },
+    review: independent ? progress.clock.review.filter((value) => value !== time) : [...new Set([...progress.clock.review, time])].slice(-24),
+  };
+  let reward = correct ? assisted ? 6 : mode === 'choice' ? 10 : 15 : 0;
+  const level = clockLevel(progress.clock);
+  if (correct && !clock.completedLevels.includes(level) && categoriesFor(level).every((key) => skillMastered(clock.skills[key]))) {
+    clock.completedLevels = [...clock.completedLevels, level];
+    reward += 40;
+  }
+  clock.xp += reward;
+  return addXp({ ...progress, clock }, reward);
+}
+
+export function completeClockMission(progress: Progress, mission: number): Progress {
+  const missionCounts = [...progress.clock.missionCounts];
+  missionCounts[mission] = (missionCounts[mission] ?? 0) + 1;
+  return addXp({ ...progress, clock: { ...progress.clock, missions: progress.clock.missions + 1, missionCounts, xp: progress.clock.xp + 30 } }, 30);
 }
 
 export function recordAnswer(progress: Progress, problem: Problem, answer: number, hints: number) {
@@ -144,9 +172,12 @@ export function recordAnswer(progress: Progress, problem: Problem, answer: numbe
 
 export function defaultProgress(): Progress {
   return {
-    version: 1,
+    version: 2,
     name: 'Emma',
     xp: 0,
+    availableXp: 0,
+    clock: defaultClockProgress(),
+    unicorn: defaultUnicorn(),
     solved: 0,
     correct: 0,
     level: 1,
@@ -168,7 +199,7 @@ export function defaultProgress(): Progress {
 export function loadProgress(raw: string | null): Progress {
   if (!raw) return defaultProgress();
   const parsed: unknown = JSON.parse(raw);
-  if (!parsed || typeof parsed !== 'object' || (parsed as { version?: unknown }).version !== 1) {
+  if (!parsed || typeof parsed !== 'object' || ![1, 2].includes((parsed as { version: number }).version)) {
     throw new Error('Dit voortgangsbestand is niet geldig of wordt niet ondersteund.');
   }
   const base = defaultProgress();
@@ -179,6 +210,10 @@ export function loadProgress(raw: string | null): Progress {
   return {
     ...base,
     ...data,
+    version: 2,
+    availableXp: (parsed as { version: number }).version === 1 ? data.xp : typeof data.availableXp === 'number' && Number.isFinite(data.availableXp) && data.availableXp >= 0 ? Math.min(data.availableXp, data.xp) : 0,
+    clock: readClockProgress(data.clock),
+    unicorn: readUnicorn(data.unicorn),
     name: typeof data.name === 'string' && data.name.trim() ? data.name.slice(0, 20) : base.name,
     unlocked: Array.isArray(data.unlocked) ? data.unlocked.filter((id) => OUTFITS.some((item) => item.id === id)) : base.unlocked,
     outfit: data.outfit && typeof data.outfit === 'object' ? data.outfit : base.outfit,
